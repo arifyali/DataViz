@@ -3,7 +3,7 @@ Readmissions_and_Deaths_._Hospital <- read.csv("~/Downloads/Readmissions_and_Dea
 Medicare_Hospital_Spending_by_Claim <- read.csv("~/Downloads/Medicare_Hospital_Spending_by_Claim.csv")
 
 ### First Plot
- library("sqldf")
+library("sqldf")
 Readmissions = Readmissions_and_Deaths_._Hospital[grepl("READM", Readmissions_and_Deaths_._Hospital$Measure.ID), ]
 names(Readmissions) = gsub("\\.","_", names(Readmissions))
 Readmissions$normalized_scores = as.numeric(as.character(Readmissions$Score))*as.numeric(as.character(Readmissions$Denominator))
@@ -63,3 +63,17 @@ symbols(x = c(merged_states$avg_clean_rating,rep(5, 5)),
 text(x = c(merged_states$avg_clean_rating), y = merged_states$average_score, labels = merged_states$State)
 
 symbols(x = rep(5, 5), y = rep(3.6,5), circle = sqrt(10^(0:4)), add = T)
+
+
+Age.adjusted_death_rates_1900_2013 <- read.csv("~/Documents/Georgetown/Data-Visualization-PPOL-646-Fall-2016/NCHS_-_Age-adjusted_death_rates_and_life-expectancy_at_birth___All_Races__Both_Sexes___United_States__1900-2013.csv",  stringsAsFactors=FALSE)
+Age.adjusted_death_rates_1900_2013 = Age.adjusted_death_rates_1900_2013[!is.na(Age.adjusted_death_rates_1900_2013$Average.Life.Expectancy), ]
+par(mfrow = c(3,1))
+
+for(i in unique(Age.adjusted_death_rates_1900_2013$Race)){
+    plot(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Both Sexes" & Age.adjusted_death_rates_1900_2013$Race == i, ], ylim = c(0, ceiling(max(Age.adjusted_death_rates_1900_2013$Average.Life.Expectancy)/10)*10+10), type = "l",lwd= 2, col = "black")
+    
+    points(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Female" & Age.adjusted_death_rates_1900_2013$Race == i, ], type = "l",lwd= 2, col = "red")
+  
+    points(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Male" & Age.adjusted_death_rates_1900_2013$Race == i, ], type = "l",lwd= 2, col = "blue")
+    
+    }
