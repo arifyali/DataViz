@@ -1,6 +1,7 @@
-U.S._Chronic_Disease_Indicators__CDI_ <- read.csv("~/Downloads/U.S._Chronic_Disease_Indicators__CDI_.csv")
-Readmissions_and_Deaths_._Hospital <- read.csv("~/Downloads/Readmissions_and_Deaths_-_Hospital.csv")
-Medicare_Hospital_Spending_by_Claim <- read.csv("~/Downloads/Medicare_Hospital_Spending_by_Claim.csv")
+setwd("~/Documents/Georgetown/Data-Visualization-PPOL-646-Fall-2016/")
+U.S._Chronic_Disease_Indicators__CDI_ <- read.csv("U.S._Chronic_Disease_Indicators__CDI_.csv")
+Readmissions_and_Deaths_._Hospital <- read.csv("Readmissions_and_Deaths_-_Hospital.csv")
+Medicare_Hospital_Spending_by_Claim <- read.csv("Medicare_Hospital_Spending_by_Claim.csv")
 
 ### First Plot
 library("sqldf")
@@ -35,7 +36,7 @@ title("The rates of Readmission by Reason for the Top 10 Highest Readmitting Sta
 
 
 ###
-Patient_survey__HCAHPS__._Hospital <- read.csv("~/Downloads/Patient_survey__HCAHPS__-_Hospital.csv")
+Patient_survey__HCAHPS__._Hospital <- read.csv("Patient_survey__HCAHPS__-_Hospital.csv")
 View(Patient_survey__HCAHPS__._Hospital)
 Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating = as.numeric(as.character(Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating))
 clean = Patient_survey__HCAHPS__._Hospital[Patient_survey__HCAHPS__._Hospital$HCAHPS.Answer.Description == "Cleanliness - star rating",]
@@ -64,16 +65,99 @@ text(x = c(merged_states$avg_clean_rating), y = merged_states$average_score, lab
 
 symbols(x = rep(5, 5), y = rep(3.6,5), circle = sqrt(10^(0:4)), add = T)
 
-
-Age.adjusted_death_rates_1900_2013 <- read.csv("~/Documents/Georgetown/Data-Visualization-PPOL-646-Fall-2016/NCHS_-_Age-adjusted_death_rates_and_life-expectancy_at_birth___All_Races__Both_Sexes___United_States__1900-2013.csv",  stringsAsFactors=FALSE)
+### Plot 3
+Age.adjusted_death_rates_1900_2013 <- read.csv("NCHS_-_Age-adjusted_death_rates_and_life-expectancy_at_birth___All_Races__Both_Sexes___United_States__1900-2013.csv",  stringsAsFactors=FALSE)
 Age.adjusted_death_rates_1900_2013 = Age.adjusted_death_rates_1900_2013[!is.na(Age.adjusted_death_rates_1900_2013$Average.Life.Expectancy), ]
 par(mfrow = c(3,1))
 
 for(i in unique(Age.adjusted_death_rates_1900_2013$Race)){
-    plot(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Both Sexes" & Age.adjusted_death_rates_1900_2013$Race == i, ], ylim = c(0, ceiling(max(Age.adjusted_death_rates_1900_2013$Average.Life.Expectancy)/10)*10+10), type = "l",lwd= 2, col = "black")
+    plot(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Both Sexes" & Age.adjusted_death_rates_1900_2013$Race == i, ], type = "l",lwd= 2, col = "black")
     
     points(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Female" & Age.adjusted_death_rates_1900_2013$Race == i, ], type = "l",lwd= 2, col = "red")
   
     points(Average.Life.Expectancy~Year, data = Age.adjusted_death_rates_1900_2013[Age.adjusted_death_rates_1900_2013$Sex== "Male" & Age.adjusted_death_rates_1900_2013$Race == i, ], type = "l",lwd= 2, col = "blue")
     
-    }
+}
+
+### Plot 4
+kff_medicare_data <- read.delim("kff_medicare_data.csv")
+
+medicare_rep_total = as.numeric(as.character(kff_medicare_data$Total))
+for(i in 2:ncol(kff_medicare_data)){
+  kff_medicare_data[,i] = as.numeric(as.character(kff_medicare_data[,i]))/as.numeric(as.character(kff_medicare_data[,ncol(kff_medicare_data)]))
+}
+kff_medicare_data$Total = medicare_rep_total
+
+kff_medicare_data[is.na(kff_medicare_data)] <- 0
+# Kaiser Family Foundation estimates based on the Census Bureau's March 2016 Current Population Survey (CPS: Annual Social and Economic Supplements
+Medicare_Spending <- read.delim("Total Medicare Spending by State.csv")
+# Centers for Medicare &amp; Medicaid Services (2011). _Health Expenditures by State of Residence._Retrieved (December 2011) at [http://www.cms.gov/NationalHealthExpendData/downloads/resident-state-estimates.zip.](http://www.cms.gov/NationalHealthExpendData/downloads/resident-state-estimates.zip)	
+
+kff_medicare_data = sqldf("SELECT * FROM kff_medicare_data
+                          JOIN Medicare_Spending
+                          ON kff_medicare_data.Location = 
+                          Medicare_Spending.Location")
+
+kff_medicare_data = kff_medicare_data[-1,]
+library(ggplot2)
+ggplot(data = kff_medicare_data, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence, color = "#FF000022", label = Location)) + geom_point() + geom_text(aes(label=Location),hjust=0, vjust=0)
+
+### Plot 5
+Healthcare_Expenditures_by_State <- read.delim("Health Care Expenditures by State of Residence.csv")
+library(qcc)
+states = as.character(Healthcare_Expenditures_by_State[,1])
+Healthcare_Expenditures_by_State = Healthcare_Expenditures_by_State$Total.Health.Spending
+names(Healthcare_Expenditures_by_State) = states
+pareto.chart(Healthcare_Expenditures_by_State[-1], cex.xlab = .5,srt=45)
+
+######### Plot 6
+bad_teens = U.S._Chronic_Disease_Indicators__CDI_[U.S._Chronic_Disease_Indicators__CDI_$QuestionID == "ALC1_1", c("DataValueAlt","Question", "LocationAbbr")]
+names(bad_teens) = c("Percent_teen_drink", "Question", "State")
+
+really_bad_teens = U.S._Chronic_Disease_Indicators__CDI_[U.S._Chronic_Disease_Indicators__CDI_$QuestionID == "ALC2_1", c("DataValueAlt","Question", "LocationAbbr")]
+names(really_bad_teens) = c("Percent_teen_bing_drink", "Question", "State")
+
+teen_drinking = sqldf("SELECT * FROM bad_teens
+                      JOIN really_bad_teens
+                      ON bad_teens.State = really_bad_teens.State")
+lm_teen_drinking = lm(Percent_teen_bing_drink~Percent_teen_drink, data = teen_drinking)
+
+teen_drinking = na.omit(teen_drinking)
+cor(teen_drinking$Percent_teen_drink, teen_drinking$Percent_teen_bing_drink)
+ggplot(data = teen_drinking, aes(x = Percent_teen_drink, y = Percent_teen_bing_drink)) + 
+  geom_point(col = "grey20") + 
+  geom_abline(slope = lm_teen_drinking$coefficients[2], intercept = lm_teen_drinking$coefficients[1], col = "#FF000099")
+
+######### Plot 7
+Readmissions_and_Deaths_._Hospital$geo_code = as.character(Readmissions_and_Deaths_._Hospital$Location)
+Readmissions_and_Deaths_._Hospital$geo_code = gsub(".*\\n","",Readmissions_and_Deaths_._Hospital$geo_code)
+Readmissions_and_Deaths_._Hospital$geo_code = gsub("\\(|\\)| ","",Readmissions_and_Deaths_._Hospital$geo_code)
+Readmissions_and_Deaths_._Hospital = Readmissions_and_Deaths_._Hospital[Readmissions_and_Deaths_._Hospital$geo_code != "", ]
+latlong= as.data.frame(strsplit(Readmissions_and_Deaths_._Hospital$geo_code,split = ","))
+row.names(latlong) = c("lat", "long")
+latlong = t(latlong)
+Readmissions_and_Deaths_._Hospital = cbind(Readmissions_and_Deaths_._Hospital, latlong)
+
+Readmissions_and_Deaths_._Hospital$lat = as.numeric(as.character(Readmissions_and_Deaths_._Hospital$lat))
+Readmissions_and_Deaths_._Hospital$long = as.numeric(as.character(Readmissions_and_Deaths_._Hospital$long))
+
+READM_30_HOSP_WIDE = Readmissions_and_Deaths_._Hospital[Readmissions_and_Deaths_._Hospital$Measure.ID == "READM_30_HOSP_WIDE", ]
+
+state.abb = state.abb[state.abb != "AK"]
+state.abb = state.abb[state.abb != "HI"]
+
+READM_30_HOSP_WIDE = READM_30_HOSP_WIDE[as.character(READM_30_HOSP_WIDE$State) %in% state.abb,]
+READM_30_HOSP_WIDE$Score = as.numeric(as.character(READM_30_HOSP_WIDE$Score))
+READM_30_HOSP_WIDE = READM_30_HOSP_WIDE[!is.na(READM_30_HOSP_WIDE$Score),]
+
+READM_30_HOSP_WIDE$Score[READM_30_HOSP_WIDE$Score >= 17.5] = 17.5
+library(maps)
+#load us map data
+all_states <- map_data("state")
+#plot all states with ggplot
+p <- ggplot()
+p <- p + geom_polygon( data=all_states, aes(x=long, y=lat, group = group),colour="white", fill="grey" )
+
+p + geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(low = "#FF000020") + ggtitle("Location of All Hospitals that have Medicare/Medicaid Readmission Scores (in the Continous United States") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+
+
