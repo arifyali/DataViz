@@ -3,8 +3,11 @@ U.S._Chronic_Disease_Indicators__CDI_ <- read.csv("U.S._Chronic_Disease_Indicato
 Readmissions_and_Deaths_._Hospital <- read.csv("Readmissions_and_Deaths_-_Hospital.csv")
 Medicare_Hospital_Spending_by_Claim <- read.csv("Medicare_Hospital_Spending_by_Claim.csv")
 
-### First Plot
 library("sqldf")
+library("ggplot2")
+library("maps")
+
+### First Plot
 Readmissions = Readmissions_and_Deaths_._Hospital[grepl("READM", Readmissions_and_Deaths_._Hospital$Measure.ID), ]
 names(Readmissions) = gsub("\\.","_", names(Readmissions))
 Readmissions$normalized_scores = as.numeric(as.character(Readmissions$Score))*as.numeric(as.character(Readmissions$Denominator))
@@ -35,7 +38,7 @@ legend("right", legend = c("Rate of Overall readmission"), bty = "n", cex=0.75)
 title("The rates of Readmission by Reason for the Top 10 Highest Readmitting States (averaged by hospital)", outer = T)
 
 
-###
+### Plot 2
 Patient_survey__HCAHPS__._Hospital <- read.csv("Patient_survey__HCAHPS__-_Hospital.csv")
 View(Patient_survey__HCAHPS__._Hospital)
 Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating = as.numeric(as.character(Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating))
@@ -160,4 +163,67 @@ p <- p + geom_polygon( data=all_states, aes(x=long, y=lat, group = group),colour
 
 p + geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(low = "#FF000020") + ggtitle("Location of All Hospitals that have Medicare/Medicaid Readmission Scores (in the Continous United States") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
 
+### Plot 8
+# Correlation Plot of Readmission vs Mortality Scores (use hosiptal adjusted average) by hospital
+READM_30_HOSP_WIDE = Readmissions_and_Deaths_._Hospital[Readmissions_and_Deaths_._Hospital$Measure.ID == "READM_30_HOSP_WIDE", c("Provider.ID", "Score")]
+names(READM_30_HOSP_WIDE) = c("Provider_ID", "Readmission_Score")
+READM_30_HOSP_WIDE$Readmission_Score = as.numeric(as.character(READM_30_HOSP_WIDE$Readmission_Score))
+READM_30_HOSP_WIDE = READM_30_HOSP_WIDE[!is.na(READM_30_HOSP_WIDE$Readmission_Score),]
 
+MORT = Readmissions_and_Deaths_._Hospital[grepl("MORT", Readmissions_and_Deaths_._Hospital$Measure.ID), ]
+MORT$Score = as.numeric(as.character(MORT$Score))
+MORT = MORT[!is.na(MORT$Score),]
+names(MORT) = gsub("\\.", "_", names(MORT))
+MORT_count_hospital = sqldf("SELECT SUM(Denominator) AS Sum, Provider_ID 
+                            FROM MORT
+                            GROUP BY Provider_ID")
+
+MORT = sqldf("SELECT SUM(Score*Denominator)/Sum AS Mortality_Score, MORT.State AS State, MORT.Provider_ID AS Provider_ID
+              FROM MORT
+              JOIN MORT_count_hospital
+              ON MORT.Provider_ID = MORT_count_hospital.Provider_ID
+              GROUP BY MORT.Provider_ID")
+
+MORT_vs_Readm = sqldf("SELECT * FROM
+                      MORT
+                      JOIN READM_30_HOSP_WIDE
+                      ON MORT.Provider_ID = READM_30_HOSP_WIDE.Provider_ID")
+
+cor(MORT_vs_Readm$Mortality_Score, MORT_vs_Readm$Readmission_Score)
+UT_MORT_vs_Readm = MORT_vs_Readm[MORT_vs_Readm$State == "UT",]
+cor(UT_MORT_vs_Readm$Mortality_Score, UT_MORT_vs_Readm$Readmission_Score)
+
+non_UT_MORT_vs_Readm = MORT_vs_Readm[MORT_vs_Readm$State != "UT",]
+
+ggplot(data = non_UT_MORT_vs_Readm, aes(x = Mortality_Score, y = Readmission_Score)) + 
+  geom_point(col = "grey") +
+  geom_point(data = UT_MORT_vs_Readm, aes(x = Mortality_Score, y = Readmission_Score), col = "#FF000099") +
+  ggtitle("Hospital Readmission Percentage vs. Mortality Percentage (Correlation of -0.097)") +
+  xlab("Mortality Percentage") + ylab("Readmission Percentage")
+  +coord_cartesian(
+    xlim = c(0, 25), ylim = c(10, 25))
+### Plot 9
+U.S._Chronic_Disease_Indicators__CDI_$Topic = tolower(U.S._Chronic_Disease_Indicators__CDI_$Topic)
+
+U.S._Chronic_Disease_Indicators__CDI_$Question = tolower(U.S._Chronic_Disease_Indicators__CDI_$Question)
+
+Cancer = U.S._Chronic_Disease_Indicators__CDI_[grepl("cancer",U.S._Chronic_Disease_Indicators__CDI_$Topic) & 
+                                                 grepl("mortal",U.S._Chronic_Disease_Indicators__CDI_$Question)
+                                                 ,]
+
+Cancer = Cancer[Cancer$DataValueTypeID == "AvgAnnAgeAdjRate", ]
+
+Cancer = sqldf("SELECT LocationDesc AS region, SUM(DataValue) AS DataValue FROM Cancer GROUP BY GeoLocation")
+US_cancer_count = Cancer[1,2]
+Cancer = Cancer[-1,]
+
+all_states <- map_data("state")
+Cancer$region = tolower(Cancer$region)
+Total <- merge(all_states, Cancer, by="region")
+
+p <- ggplot()
+p <- p + geom_polygon(data=Total, aes(x=long, y=lat, group = group, fill=Total$DataValue),colour="white"
+) + scale_fill_continuous(low = "thistle2", high = "darkred", guide="colorbar")
+P1 <- p + theme_bw()  + labs(fill = "Cancer-related Deaths \n per 100,000 people" 
+                             ,title = "Cancer Motality in the United States (2008-2012)", x="", y="")
+P1 + scale_y_continuous(breaks=c()) + scale_x_continuous(breaks=c()) + theme(panel.border =  element_blank())
