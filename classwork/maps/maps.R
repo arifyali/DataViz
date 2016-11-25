@@ -4,7 +4,6 @@ library(broom)
 library(dplyr)
 library(ggplot2)
 library(ggmap)
-
 # I get many shapefiles, including the below, from here: http://www.naturalearthdata.com
 # I also get shapefiles from the US Census Bureau and state agencies, when making local maps
 
@@ -22,7 +21,7 @@ states.df <- left_join(states.points, states@data, by = c("id" = "adm1_code"))
 states.df <- filter(states.df, iso_a2 == "US")
 
 # Election data
-election <- read.csv("2012.csv", stringsAsFactors = FALSE)
+election <- read.csv("~/Documents/DataViz/classwork/maps/2012.csv", stringsAsFactors = FALSE)
 
 # Add in Obama's margin in each state
 election$margin <- (election$obama - election$romney) / election$total
