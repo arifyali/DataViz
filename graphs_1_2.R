@@ -39,7 +39,6 @@ title("Average Hospital Readmission Rate by Medical Reason for the Top Ten State
 
 ### Plot 2
 par(mfrow =c(1,1))
-Patient_survey__HCAHPS__._Hospital <- read.csv("Patient_survey__HCAHPS__-_Hospital.csv")
 View(Patient_survey__HCAHPS__._Hospital)
 Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating = as.numeric(as.character(Patient_survey__HCAHPS__._Hospital$Patient.Survey.Star.Rating))
 clean = Patient_survey__HCAHPS__._Hospital[Patient_survey__HCAHPS__._Hospital$HCAHPS.Answer.Description == "Cleanliness - star rating",]

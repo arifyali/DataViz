@@ -2,7 +2,7 @@ setwd("~/Documents/DataViz/")
 source("data_sources.R")
 
 ### Plot 5
-Healthcare_Expenditures_by_State <- read.delim("Health Care Expenditures by State of Residence.csv")
+Healthcare_Expenditures_by_State <- read.delim("data/Health Care Expenditures by State of Residence.csv")
 library(qcc)
 states = as.character(Healthcare_Expenditures_by_State[,1])
 Healthcare_Expenditures_by_State = Healthcare_Expenditures_by_State$Total.Health.Spending

@@ -1,5 +1,5 @@
 setwd("~/Documents/DataViz/")
-source("data_sources.R")
+source("graphs_9_10.R")
 ### Plot 11
 par(mfrow = c(1,1))
 tobacco <- U.S._Chronic_Disease_Indicators__CDI_[which(U.S._Chronic_Disease_Indicators__CDI_$Topic == "Tobacco"), ]
@@ -30,25 +30,6 @@ ggplot(data = youth_tobacco, aes(x = Percent_Youth_Smoke, y = `Percent_Youth_tob
   xlab("Percent of Youth that are smoking") + ylab("Percent of Youth that are using smokeless tobacco products")
 
 ### Plot 12
-medicare_spend = read.csv("medicare_spend per enrollee per year/1991.csv", skip = 3, stringsAsFactors = F)[1:52,]
-names(medicare_spend) = c("Location", "1991")
-medicare_spend[,2] = as.numeric(gsub("\\$", "", medicare_spend[,2]))
-for(i in 1992:2009){
-  path = paste("medicare_spend per enrollee per year/", i, ".csv", sep ="")
-  new_data = read.csv(path, skip = 3, stringsAsFactors = F)[1:52,]
-  names(new_data) = c("Location", i)
-  new_data[,2] = as.numeric(gsub("\\$", "", new_data[,2]))
-  medicare_spend = merge(medicare_spend, new_data, by.x = "Location", by.y = "Location")
-}
-medicare_spend =(t(medicare_spend))
-colnames(medicare_spend) = as.vector(medicare_spend[1,])
-medicare_spend = as.data.frame(medicare_spend)
-
-medicare_spend = medicare_spend[-1,]
-year = as.numeric(row.names(medicare_spend))
-medicare_spend = cbind(medicare_spend, year)
-
-
 spend_medicare = medicare_spend[, c("Alabama", "year")]
 spend_medicare$State = "Alabama"
 names(spend_medicare) = c("medicare_expenditure", "year", "state")
@@ -58,24 +39,6 @@ for(i in names(medicare_spend)[-c(1, 53)]){
   names(state) = c("medicare_expenditure", "year", "state")
   spend_medicare = rbind(spend_medicare, state)
 }
-
-figure(title = "Medicare Spending per recipent from 1992-2009", 
-       ylab = "Medicare Expenditure") %>%
-  ly_lines(year,medicare_expenditure, group = state,data = spend_medicare)
-
-spend_medicare = medicare_spend[, c("Alabama", "year")]
-spend_medicare$State = "Alabama"
-names(spend_medicare) = c("medicare_expenditure", "year", "state")
-for(i in names(medicare_spend)[-c(1, 53)]){
-  state = medicare_spend[, c(i, "year")]
-  state$State = i
-  names(state) = c("medicare_expenditure", "year", "state")
-  spend_medicare = rbind(spend_medicare, state)
-}
-
-figure(title = "Medicare Spending per recipent from 1992-2009", 
-       ylab = "Medicare Expenditure") %>%
-  ly_lines(year,medicare_expenditure, group = state,data = spend_medicare)
 
 medicare_spend_percentage = as.data.frame(t(medicare_spend))[-53,]
 ms = medicare_spend_percentage
@@ -99,4 +62,41 @@ for(i in names(medicare_spend_percentage)[-1]){
   medicare_percentage = rbind(medicare_percentage, state)
 }
 us_medicare_percentage = medicare_percentage[medicare_percentage$State == "United States",]
-ggplot(medicare_percentage, aes(year, medicare_expenditure, group=State)) + geom_line() + geom_line(data = us_medicare_percentage, aes(year, medicare_expenditure, color ="red"))
+time_series_medicare = ggplot(medicare_percentage, aes(year, medicare_expenditure, group=State)) + 
+  geom_line(color = "#00000022", size = 1) + 
+  geom_line(data = us_medicare_percentage, aes(year, medicare_expenditure, color ="red"), size = 1.25)+
+  coord_cartesian(ylim = c(-0.1, 0.2))
+library(plotly)
+ggplotly(time_series_medicare)
+### Plot 13
+### Heatmap
+names(Cancer) = c("state", "total_cancer_deaths")
+Cancer_deaths_by_type_by_state$Question = gsub(", mortality", "",Cancer_deaths_by_type_by_state$Question)
+Cancer_deaths_by_type_by_state$Question = gsub("cancer of the ", "",Cancer_deaths_by_type_by_state$Question)
+
+for(i in unique(Cancer_deaths_by_type_by_state$Question)){
+  cancer = Cancer_deaths_by_type_by_state[which(Cancer_deaths_by_type_by_state$Question == i), c("LocationDesc", "DataValue")]
+  cancer$LocationDesc = tolower(cancer$LocationDesc)
+  names(cancer) = c("state", i)
+  Cancer = merge(Cancer, cancer, by = "state")
+  }
+states = Cancer$state
+row.names(Cancer) = states
+Cancer = Cancer[, -(which(names(Cancer) == "state"))]
+Cancer <- Cancer[order(Cancer$total_cancer_deaths, decreasing=TRUE),]
+# Ordering
+Cancer = Cancer[, -1]
+
+
+
+for(i in 1:ncol(Cancer)){
+  Cancer[,i] = as.numeric(as.character(Cancer[,i]))
+}
+
+library(Hmisc)
+
+cancer_matrix = data.matrix(Cancer)#[,-c(1,3,5,8)]
+row.names(cancer_matrix)<- capitalize(row.names(cancer_matrix))
+colfunc <- colorRampPalette(c("#ffffff", "#8B0000"))
+
+bball_heatmap <- heatmap(cancer_matrix, Rowv=NA, Colv=NA, col = (colfunc(256)), scale="column", cexRow = 1.25)

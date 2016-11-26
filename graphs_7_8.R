@@ -30,6 +30,7 @@ library(maps)
 states <- readOGR(dsn = "ne_50m_admin_1_states_provinces_lakes",
                   layer = "ne_50m_admin_1_states_provinces_lakes")
 
+gpclibPermit()
 # Let's transform them into tidy data that ggplot can use
 states.points <- tidy(states, region = "adm1_code")
 
@@ -68,19 +69,6 @@ ak <- ggplot() +
   scale_fill_gradient2(limits = c(-0.5, 0.5)) +
   geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(high = "#FF000020") + 
   coord_map("albers", lat0 = 29.5, lat1 = 45.5,
-            xlim = c(min(alaska$long)-10, max(alaska$long)+10), 
-            ylim = c(min(alaska$lat)-1, max(alaska$lat)+1),
-            orientation = c(90, 0, -98.35)) +
-  theme_bw() +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
-ak
-
-alaska = states.df[states.df$name == "Alaska", ]
-ak <- ggplot() +
-  geom_polygon(data = states.df, aes(x = long, y = lat, group = group), colour="white", fill="grey") +
-  scale_fill_gradient2(limits = c(-0.5, 0.5)) +
-  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(high = "#FF000020") + 
-  coord_map("albers", lat0 = 29.5, lat1 = 45.5,
             xlim = c(min(alaska$long), max(alaska$long)), 
             ylim = c(min(alaska$lat), max(alaska$lat)),
             orientation = c(90, 0, -98.35)) +
@@ -102,13 +90,7 @@ hi <- ggplot() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
 hi
 
-
-
-# p + geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + 
-#   scale_colour_gradient(high = "#FF000020") + 
-#   theme_bw() +
-#   theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
-# ### Plot 8
+### Plot 8
 # Correlation Plot of Readmission vs Mortality Scores (use hosiptal adjusted average) by hospital
 READM_30_HOSP_WIDE = Readmissions_and_Deaths_._Hospital[Readmissions_and_Deaths_._Hospital$Measure.ID == "READM_30_HOSP_WIDE", c("Provider.ID", "Score")]
 names(READM_30_HOSP_WIDE) = c("Provider_ID", "Readmission_Score")
@@ -144,6 +126,5 @@ ggplot(data = non_UT_MORT_vs_Readm, aes(x = Mortality_Score, y = Readmission_Sco
   geom_point(col = "grey") +
   geom_point(data = UT_MORT_vs_Readm, aes(x = Mortality_Score, y = Readmission_Score), col = "#FF000099") +
   ggtitle("Hospital Readmission Percentage vs. Mortality Percentage (Correlation of -0.097)") +
-  xlab("Mortality Percentage") + ylab("Readmission Percentage")
-+coord_cartesian(
+  xlab("Mortality Percentage") + ylab("Readmission Percentage") +coord_cartesian(
   xlim = c(0, 25), ylim = c(10, 25))

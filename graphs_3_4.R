@@ -3,7 +3,6 @@ source("data_sources.R")
 
 par(mfrow =c(1,1))
 
-Age.adjusted_death_rates_1900_2013 <- read.csv("NCHS_-_Age-adjusted_death_rates_and_life-expectancy_at_birth___All_Races__Both_Sexes___United_States__1900-2013.csv",  stringsAsFactors=FALSE)
 Age.adjusted_death_rates_1900_2013 = Age.adjusted_death_rates_1900_2013[!is.na(Age.adjusted_death_rates_1900_2013$Average.Life.Expectancy), ]
 par(mfrow = c(3,1))
 
@@ -22,7 +21,7 @@ for(i in unique(Age.adjusted_death_rates_1900_2013$Sex)){
 legend(x = "bottomright", legend = c("All Races", "Black", "White"), lwd = 2, col = c("Black", "#FF0000FF", "Blue"))
 
 ### Plot 4
-kff_medicare_data <- read.delim("kff_medicare_data.csv")
+kff_medicare_data <- read.delim("data/kff_medicare_data.csv")
 
 medicare_rep_total = as.numeric(as.character(kff_medicare_data$Total))
 for(i in 2:ncol(kff_medicare_data)){
@@ -32,7 +31,7 @@ kff_medicare_data$Total = medicare_rep_total
 
 kff_medicare_data[is.na(kff_medicare_data)] <- 0
 # Kaiser Family Foundation estimates based on the Census Bureau's March 2016 Current Population Survey (CPS: Annual Social and Economic Supplements
-Medicare_Spending <- read.delim("Total Medicare Spending by State.csv")
+Medicare_Spending <- read.delim("data/Total Medicare Spending by State.csv")
 # Centers for Medicare &amp; Medicaid Services (2011). _Health Expenditures by State of Residence._Retrieved (December 2011) at [http://www.cms.gov/NationalHealthExpendData/downloads/resident-state-estimates.zip.](http://www.cms.gov/NationalHealthExpendData/downloads/resident-state-estimates.zip)	
 
 kff_medicare_data = sqldf("SELECT * FROM kff_medicare_data
