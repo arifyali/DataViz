@@ -43,4 +43,11 @@ kff_medicare_data = kff_medicare_data[-1,]
 library(ggplot2)
 ggplot(data = kff_medicare_data, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence)) + geom_point() #+ geom_text(aes(label=Location),hjust=0, vjust=0)
 kff_medicare_data_no_outliers = kff_medicare_data[-which(kff_medicare_data$Location %in% c("District of Columbia", "Hawaii")),]
-ggplot(data = kff_medicare_data_no_outliers, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence, color = "#FF000022")) + geom_point() + geom_text(aes(label=Location),hjust=0, vjust=0)
+ggplot(data = kff_medicare_data_no_outliers, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence)) + geom_point(color = "#8B0000")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+

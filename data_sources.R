@@ -40,4 +40,5 @@ library("qcc")
 library("maps")
 library("rbokeh")
 
-
+### Color style:
+colfunc <- colorRampPalette(c("#ffffff", "#8B0000"))

@@ -55,39 +55,57 @@ states.df <- filter(states.df, iso_a2 == "US")
 usa <- ggplot() +
   geom_polygon(data = states.df, aes(x = long, y = lat, group = group), colour="white", fill="grey") +
   scale_fill_gradient2(limits = c(-0.5, 0.5)) +
-  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(high = "#FF000020") + 
+  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(low="#ffffff",high = "#8B0000") + 
   coord_map("albers", lat0 = 29.5, lat1 = 45.5,
             xlim = c(-124.85, -66.88), ylim = c(24.4, 49.38),
             orientation = c(90, 0, -98.35)) +
   theme_bw() +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+  
 usa
 
 alaska = states.df[states.df$name == "Alaska", ]
 ak <- ggplot() +
   geom_polygon(data = states.df, aes(x = long, y = lat, group = group), colour="white", fill="grey") +
   scale_fill_gradient2(limits = c(-0.5, 0.5)) +
-  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(high = "#FF000020") + 
+  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score),size =5) + scale_colour_gradient(low="#ffffff",high = "#8B0000") + 
   coord_map("albers", lat0 = 29.5, lat1 = 45.5,
             xlim = c(min(alaska$long), max(alaska$long)), 
             ylim = c(min(alaska$lat), max(alaska$lat)),
             orientation = c(90, 0, -98.35)) +
   theme_bw() +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
 ak
-
 
 hawaii = states.df[states.df$name == "Hawaii", ]
 hi <- ggplot() +
   geom_polygon(data = states.df, aes(x = long, y = lat, group = group), colour="white", fill="grey") +
   scale_fill_gradient2(limits = c(-0.5, 0.5)) +
-  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score)) + scale_colour_gradient(high = "#FF000020") + 
+  geom_point(data=READM_30_HOSP_WIDE, aes(x=long, y=lat,colour = Score),size =5) + scale_colour_gradient(low="#ffffff",high = "#8B0000") + 
   coord_map("albers", lat0 = 29.5, lat1 = 45.5,
             xlim = c(-160, -153), 
             ylim = c(16, 24),
             orientation = c(90, 0, -98.35)) +
   theme_bw() +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
 hi
 
 ### Plot 8
