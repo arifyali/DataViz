@@ -22,3 +22,21 @@ cancer_counts = colSums(total_cancer_deaths[-c(1,10)])
 colfunc <- colorRampPalette(c("#ffe5e5", "#8B0000"))
 pareto.chart(cancer_counts, col = rev(colfunc(8)))
 
+#### Correlation 
+MORT_vs_Readm = MORT_vs_Readm[, c(1,2,5)]
+MORT_vs_Readm = na.omit(MORT_vs_Readm)
+MORT_vs_Readm$State = as.character(MORT_vs_Readm$State)
+states = (unique(MORT_vs_Readm$State))
+states_correlation = c()
+for(i in states){
+  MORT_vs_Readm_state = MORT_vs_Readm[MORT_vs_Readm$State ==i, "Mortality_Score"]
+  states_correlation = c(states_correlation, paste("[", paste0(quantile(MORT_vs_Readm_state,probs = c(0,.25,.5,.75, 1)), collapse = ", "), "],", sep = ""))
+  
+}
+names(states_correlation) <- states
+
+row.names(MORT_vs_Readm) = MORT_vs_Readm$State
+
+fileConn <- file("quantiles")
+writeLines(paste(states_correlation, sep=""), fileConn)
+close(fileConn)
