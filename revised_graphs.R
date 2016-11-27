@@ -37,6 +37,25 @@ names(states_correlation) <- states
 
 row.names(MORT_vs_Readm) = MORT_vs_Readm$State
 
-fileConn <- file("quantiles")
+fileConn <- file("quantiles.txt")
 writeLines(paste(states_correlation, sep=""), fileConn)
 close(fileConn)
+
+
+paste0(states, collapse = "','")
+View(MORT_vs_Readm[MORT_vs_Readm$Mortality_Score == min(MORT_vs_Readm$Mortality_Score),])
+
+states_correlation= c()
+
+for(i in states){
+  MORT_vs_Readm_state = MORT_vs_Readm[MORT_vs_Readm$State ==i, c("Mortality_Score", "Readmission_Score")]
+  states_correlation = states_correlation =c(states_correlation, cor(MORT_vs_Readm_state$Mortality_Score, MORT_vs_Readm_state$Readmission_Score))
+  
+}
+
+stats = rep(1, times = length(states_correlation))
+states_correlation_df = data.frame(stats,states_correlation )
+row.names(states_correlation_df) <- states
+states_correlation_df = states_correlation_df[order(states_correlation_df$states_correlation),]
+states_correlation_matrix = data.matrix(states_correlation_df)
+bball_heatmap <- heatmap(states_correlation_matrix, Rowv=NA, Colv=NA, col = (colfunc(256)), scale="column", cexRow = 1.25, las=1)
