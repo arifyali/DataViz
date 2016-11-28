@@ -58,4 +58,6 @@ states_correlation_df = data.frame(stats,states_correlation )
 row.names(states_correlation_df) <- states
 states_correlation_df = states_correlation_df[order(states_correlation_df$states_correlation),]
 states_correlation_matrix = data.matrix(states_correlation_df)
+par(las=1)
 bball_heatmap <- heatmap(states_correlation_matrix, Rowv=NA, Colv=NA, col = (colfunc(256)), scale="column", cexRow = 1.25, las=1)
+axis(side = 4, labels = row.names(states_correlation_df), las = 1)

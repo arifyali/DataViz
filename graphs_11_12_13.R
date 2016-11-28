@@ -61,10 +61,29 @@ for(i in names(medicare_spend_percentage)[-1]){
   state$State = i
   medicare_percentage = rbind(medicare_percentage, state)
 }
+
+years = as.character(unique(medicare_percentage$year))
+
+fifth_percentitle = rep(0, length(years))
+ninety_fifth_percentile = rep(0, length(years))
+max_percent =rep(0, length(years))
+min_percent =rep(0, length(years))
+years_df = data.frame(years, min_percent, fifth_percentitle, ninety_fifth_percentile, max_percent)
+for(i in 1:length(years)){
+  percentage_year = medicare_percentage[which(medicare_percentage$year == years[i]),"medicare_expenditure"]
+  years_df[i, 2:5] = quantile(percentage_year, probs = c(0,.05,.95,1))
+}
+
+
 us_medicare_percentage = medicare_percentage[medicare_percentage$State == "United States",]
-time_series_medicare = ggplot(medicare_percentage, aes(year, medicare_expenditure, group=State)) + 
-  geom_line(color = "#00000022", size = 1) + 
-  geom_line(data = us_medicare_percentage, aes(year, medicare_expenditure, color ="red"), size = 1.25)+
+time_series_medicare = #ggplot(medicare_percentage, aes(year, medicare_expenditure, group=State)) + 
+  ggplot(years_df,aes(years, fifth_percentitle, group = 1))+
+  geom_line() + 
+  geom_line(aes(years, ninety_fifth_percentile))+
+  geom_ribbon(aes(ymin=fifth_percentitle,ymax=ninety_fifth_percentile))+
+  geom_line(aes(years, min_percent))+
+  geom_line(aes(years, max_percent))+
+  geom_line(data = us_medicare_percentage, aes(year, medicare_expenditure, color ="#8B0000"), size = 1.25)+
   coord_cartesian(ylim = c(-0.1, 0.2))
 library(plotly)
 ggplotly(time_series_medicare)
