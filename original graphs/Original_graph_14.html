@@ -10,11 +10,18 @@
         <script src="https://code.highcharts.com/highcharts-more.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
-        <div id="container" style="height: 400px; margin: auto; min-width: 310px; max-width: 600px"></div>
+        <div id="container" style="height: 400px; margin: auto; min-width: 310px; max-width: 1000px"></div>
+        <style>
+    footer {text-align: right;}
+    p {font-family: "helvetica";
+        font-size: 10px}
+    li {font-family: "helvetica";
+        font-size: 10px}
+    </style>
     </head>
     <body>
 
-      <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+     <div id="container" style="min-width: 310px; margin: 0 auto"></div>
 
       <script>
 $(function () {
@@ -25,7 +32,7 @@ $(function () {
         },
 
         title: {
-            text: 'Distribution of Mortality Scores by US State/Territory'
+            text: 'States and Territories with smaller populations tend to have smaller ranges in Hosiptal Mortality Scores'
         },
 
         legend: {
@@ -35,13 +42,13 @@ $(function () {
         xAxis: {
             categories: ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','PR','RI','SC','SD','TN','TX','UT','VT','VI','VA','WA','WV','WI','WY'],
             title: {
-                text: 'Data Source: The Center of Medicaid and Medicare'
+                text: 'State'
             }
         },
 
         yAxis: {
             title: {
-                text: 'Range of Hospitals in US States and Territories'
+                text: 'Range of Hospital Mortality Scores'
             },
             plotLines: [{
                 value: 15.5,
@@ -118,7 +125,7 @@ $(function () {
             }
         }, {
             name: 'Readmission Score Outliers',
-            color: Highcharts.getOptions().colors[0],
+            color: "#8B0000",
             type: 'scatter',
             data: [ // x, y positions where 0 is the first category
                 [44, 4],
@@ -126,8 +133,8 @@ $(function () {
             ],
             marker: {
                 fillColor: 'white',
-                lineWidth: 1,
-                lineColor: Highcharts.getOptions().colors[0]
+                lineWidth: 0,
+                lineColor: "#8B0000"
             },
             tooltip: {
                 pointFormat: 'Observation: {point.y}'
@@ -138,6 +145,11 @@ $(function () {
 });
 
       </script>
-
+<footer>
+    <p>Data Source:</p>
+    <ul>
+<li>Centers for Medicare and Medicaid Services</li>
+</ul>
+</footer>
     </body>
 </html>

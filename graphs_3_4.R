@@ -41,9 +41,29 @@ kff_medicare_data = sqldf("SELECT * FROM kff_medicare_data
 
 kff_medicare_data = kff_medicare_data[-1,]
 library(ggplot2)
-ggplot(data = kff_medicare_data, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence)) + geom_point() #+ geom_text(aes(label=Location),hjust=0, vjust=0)
-kff_medicare_data_no_outliers = kff_medicare_data[-which(kff_medicare_data$Location %in% c("District of Columbia", "Hawaii")),]
-ggplot(data = kff_medicare_data_no_outliers, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence)) + geom_point(color = "#8B0000")+
+names(kff_medicare_data) = c("State", "Percentage_of_White_Receipients", "Percentage_of_Black_Receipients",
+                             "Hispanic", "Other", "total", "State", "Medicare_Spend_per_Residence")
+kff_medicare_data$colors = "black"
+kff_medicare_data$colors[kff_medicare_data$Percentage_of_White_Receipients>0.8 & kff_medicare_data$Percentage_of_Black_Receipients<0.1] = "#FF000099"
+
+
+
+medicare <- ggplot() + 
+  geom_point(data = kff_medicare_data[kff_medicare_data$colors == "black", ], aes(x = Percentage_of_White_Receipients, y = Percentage_of_Black_Receipients, size = Medicare_Spend_per_Residence,  label=State)) +
+  geom_point(data = kff_medicare_data[kff_medicare_data$colors == "#FF000099", ], aes(x = Percentage_of_White_Receipients, y = Percentage_of_Black_Receipients, size = Medicare_Spend_per_Residence,  label=State), color = "#8B0000") +
+  ggtitle("States with Insignificant Proportions of Black Recipients of Medicare relative to Whiten Recipients tend to spend less per Resident")+
+  labs(x = "Percentage of White Receipients", y = "Percentage of Black Receipients", subtitle = "TEST") + 
+  #axis.title.x="Percentage of White Receipients",
+  #axis.title.y="Percentage of Black Receipients",
+  theme(
+        axis.ticks.x=element_blank(),
+        
+        axis.ticks.y=element_blank(),
+        plot.subtitle=element_text(size=.5, hjust=0.5, face="italic", color="black"))
+ggplotly(medicare)
+
+
+ggplot(data = kff_medicare_data_no_outliers, aes(x = White, y = Black, size = Total.Medicare.Spending.by.Residence)) + geom_point(color = "#FF000099")+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
