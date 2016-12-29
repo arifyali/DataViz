@@ -1,3 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="utf-8" />
+      <title>HighCharts Boilerplate</title>
+      
+      <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/highcharts-more.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+        <div id="container" style="height: 400px; margin: auto; min-width: 310px; max-width: 1000px"></div>
+        <style>
+    footer {text-align: right;}
+    p {font-family: "helvetica";
+        font-size: 10px}
+    li {font-family: "helvetica";
+        font-size: 10px}
+    </style>
+    </head>
+    <body>
+
+     <div id="container" style="min-width: 310px; margin: 0 auto"></div>
+
+      <script>
+$(function () {
+    Highcharts.chart('container', {
+
+        chart: {
+            type: 'boxplot'
+        },
+
+        title: {
+            text: 'States and Territories with smaller populations tend to have smaller ranges in Hosiptal Mortality Scores'
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        xAxis: {
+            categories: ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','PR','RI','SC','SD','TN','TX','UT','VT','VI','VA','WA','WV','WI','WY'],
+            title: {
+                text: 'State'
+            }
+        },
+
+        yAxis: {
+            title: {
+                text: 'Range of Hospital Mortality Scores'
+            },
+            plotLines: [{
+                value: 15.5,
+                color: 'white',
+                width: 1,
+                label: {
+                    text: '',
+                    align: 'center',
+                    style: {
+                        color: 'gray'
+                    }
+                }
+            }]
+        },
+
+        series: [{
+            name: 'Mortality Score Statistics',
+            data: [
 [10.7604651162791, 12.5254173622705, 13.3642857142857, 14.3029411764706, 18.5],
 [7.7, 13.2260371890848, 14.1815789473684, 14.819190711515, 18.1],
 [9.48801711840228, 12.0157949790795, 12.8471052631579, 13.7460209003215, 16.1383838383838],
@@ -49,4 +118,39 @@
 [11.6560236511456, 13.4412364080017, 14.1676619535535, 15.4686296475274, 21.6],
 [10.045704467354, 11.9236302874397, 12.7684587981802, 13.649043062201, 17.1],
 [10.0222939332473, 12.7462585034014, 13.6656180770935, 14.6772549019608, 20],
-[12.67, 13.5201426024955, 14, 15.3851851851852, 18.4],
+[12.67, 13.5201426024955, 14, 15.3851851851852, 18.4]
+            ],
+            tooltip: {
+                headerFormat: '<em>State Abbreviation {point.key}</em><br/>'
+            }
+        }, {
+            name: 'Readmission Score Outliers',
+            color: "#8B0000",
+            type: 'scatter',
+            data: [ // x, y positions where 0 is the first category
+                [44, 4],
+                [39, 22]
+            ],
+            marker: {
+                fillColor: 'white',
+                lineWidth: 0,
+                lineColor: "#8B0000"
+            },
+            tooltip: {
+                pointFormat: 'Observation: {point.y}'
+            }
+        }]
+
+    });
+});
+
+      </script>
+<footer>
+    <ul style="list-style-type:none">
+<li>Data Source:</li>
+<li>Centers for Medicare and Medicaid Services</li>
+<li>Hospital Readmissions and Deaths</li>
+</ul>
+</footer>
+    </body>
+</html>

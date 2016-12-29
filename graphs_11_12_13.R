@@ -104,7 +104,7 @@ row.names(Cancer) = states
 Cancer = Cancer[, -(which(names(Cancer) == "state"))]
 Cancer <- Cancer[order(Cancer$total_cancer_deaths, decreasing=TRUE),]
 # Ordering
-Cancer = Cancer[, -1]
+
 
 
 
@@ -119,3 +119,15 @@ row.names(cancer_matrix)<- capitalize(row.names(cancer_matrix))
 colfunc <- colorRampPalette(c("#ffffff", "#8B0000"))
 
 bball_heatmap <- heatmap(cancer_matrix, Rowv=NA, Colv=NA, col = (colfunc(256)), scale="column", cexRow = 1.25)
+
+row.names(Cancer)[Cancer$`lung and bronchus` == min(Cancer$`lung and bronchus`)]
+
+names_stat = function(x) return(c(row.names(Cancer)[x == min(x)], min(x)))
+
+sapply(Cancer, names_stat)
+
+
+names_stat = function(x) return(c(row.names(Cancer)[x == max(x)], max(x)))
+
+sapply(Cancer, names_stat)
+200 deaths
